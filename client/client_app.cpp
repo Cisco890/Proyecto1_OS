@@ -1,21 +1,25 @@
 #include "client_app.h"
 
+#include <sys/socket.h>
 #include <unistd.h>
 
 #include <iostream>
 #include <stdexcept>
 
 #include "broadcast_messages.pb.h"
-#include "socket_utils.h"
+#include "change_status.pb.h"
 #include "for_dm.pb.h"
 #include "framing.h"
+#include "get_user_info.pb.h"
 #include "get_user_info_response.pb.h"
+#include "list_users.pb.h"
 #include "message_dm.pb.h"
 #include "message_general.pb.h"
 #include "protocol_io.h"
 #include "quit.pb.h"
 #include "register.pb.h"
 #include "server_response.pb.h"
+#include "socket_utils.h"
 
 #include "client/input_loop.h"
 #include "client/receiver_loop.h"
