@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 CXX := g++
-CXXFLAGS := -std=c++17 -O2 -Wall -Wextra -Wpedantic -I. -Igenerated -Icommon
+CXXFLAGS := -std=c++17 -O2 -Wall -Wextra -Wpedantic -I. -Igenerated -Igenerated/cliente-side -Igenerated/server-side -Icommon
 LDFLAGS :=
 LDLIBS := -lprotobuf -lpthread
 
