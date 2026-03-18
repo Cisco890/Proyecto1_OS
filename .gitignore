@@ -1,0 +1,10 @@
+generated/
+*.o
+client/client
+server/server
+.vscode/
+.idea/
+*.exe
+*.out
+*.log
+
