@@ -31,6 +31,9 @@ void input_loop(ClientApp& app) {
   std::string line;
   while (std::getline(std::cin, line)) {
     if (line.empty()) continue;
+    
+    // Marcar actividad
+    app.mark_activity();
 
     if (line[0] != '/') {
       app.send_broadcast(line);

@@ -27,6 +27,10 @@ enum class MessageType : uint8_t {
   FOR_DM = 12,
   BROADCAST_MESSAGES = 13,
   GET_USER_INFO_RESPONSE = 14,
+  CONNECTION_NOTIFICATION = 15,
+  DISCONNECTION_NOTIFICATION = 16,
+  SERVER_BROADCAST_MESSAGE = 17,
+  STATUS_CHANGE_NOTIFICATION = 18,
 };
 
 void send_proto(int fd, MessageType type, const google::protobuf::Message& msg);

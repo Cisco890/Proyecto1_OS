@@ -3,8 +3,10 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <chrono>
 #include <iostream>
 #include <stdexcept>
+#include <thread>
 
 #include "broadcast_messages.pb.h"
 #include "change_status.pb.h"
@@ -41,6 +43,7 @@ void ClientApp::stop() {
     fd_ = -1;
   }
   if (rx_thread_.joinable()) rx_thread_.join();
+  if (inactivity_thread_.joinable()) inactivity_thread_.join();
 }
 
 void ClientApp::connect_and_register() {
@@ -54,18 +57,66 @@ void ClientApp::connect_and_register() {
     std::lock_guard<std::mutex> lk(send_mu_);
     send_proto(fd_, MessageType::REGISTER, r);
   }
+  
+  // Inicializar última actividad
+  {
+    std::lock_guard<std::mutex> lk(activity_mu_);
+    last_activity_ = std::chrono::steady_clock::now();
+  }
+}
+
+void ClientApp::mark_activity() {
+  std::lock_guard<std::mutex> lk(activity_mu_);
+  last_activity_ = std::chrono::steady_clock::now();
+}
+
+void ClientApp::inactivity_monitor() {
+  const int INACTIVITY_THRESHOLD = 10;  // 10 segundos
+  
+  while (!stopping_.load()) {
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    
+    if (stopping_.load()) break;
+    
+    // Verificar inactividad
+    bool should_change_to_inactive = false;
+    {
+      std::lock_guard<std::mutex> lk(activity_mu_);
+      auto now = std::chrono::steady_clock::now();
+      auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - last_activity_).count();
+      
+      // Si pasaron 10 segundos y aún está ACTIVO, marcar para cambiar a INACTIVO
+      if (elapsed >= INACTIVITY_THRESHOLD && status_.load() == chat::ACTIVE) {
+        should_change_to_inactive = true;
+      }
+    }
+    
+    // Cambiar status fuera del lock para evitar deadlock
+    if (should_change_to_inactive) {
+      change_status(chat::INVISIBLE);
+    }
+  }
 }
 
 void ClientApp::run() {
   connect_and_register();
 
   rx_thread_ = std::thread([this]() { receiver_loop(*this); });
+  inactivity_thread_ = std::thread([this]() { inactivity_monitor(); });
   input_loop(*this);
 
   stop();
 }
 
 void ClientApp::send_broadcast(const std::string& text) {
+  // Marcar actividad
+  mark_activity();
+  
+  // Si está inactivo, cambiar a activo
+  if (status_.load() == chat::INVISIBLE) {
+    change_status(chat::ACTIVE);
+  }
+  
   chat::MessageGeneral mg;
   mg.set_message(text);
   mg.set_status(current_status());
@@ -76,6 +127,14 @@ void ClientApp::send_broadcast(const std::string& text) {
 }
 
 void ClientApp::send_dm(const std::string& to_user, const std::string& text) {
+  // Marcar actividad
+  mark_activity();
+  
+  // Si está inactivo, cambiar a activo
+  if (status_.load() == chat::INVISIBLE) {
+    change_status(chat::ACTIVE);
+  }
+  
   chat::MessageDM dm;
   dm.set_message(text);
   dm.set_status(current_status());

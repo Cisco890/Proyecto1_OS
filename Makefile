@@ -24,7 +24,11 @@ PROTO_SRCS := \
   $(SERVER_PROTO_DIR)/for_dm.proto \
   $(SERVER_PROTO_DIR)/broadcast_messages.proto \
   $(SERVER_PROTO_DIR)/get_user_info_response.proto \
-  $(SERVER_PROTO_DIR)/server_response.proto
+  $(SERVER_PROTO_DIR)/server_response.proto \
+  $(SERVER_PROTO_DIR)/connection_notification.proto \
+  $(SERVER_PROTO_DIR)/disconnection_notification.proto \
+  $(SERVER_PROTO_DIR)/server_broadcast_message.proto \
+  $(SERVER_PROTO_DIR)/status_change_notification.proto
 
 PB_CC := $(patsubst $(PROTO_DIR)/%.proto,$(GEN_DIR)/%.pb.cc,$(PROTO_SRCS))
 PB_O  := $(PB_CC:.cc=.o)

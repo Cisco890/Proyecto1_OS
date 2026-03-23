@@ -1,0 +1,8 @@
+syntax = "proto3";
+package chat;
+
+message DisconnectionNotification {
+  string username = 1;
+  string ip_address = 2;
+  string timestamp = 3;
+}

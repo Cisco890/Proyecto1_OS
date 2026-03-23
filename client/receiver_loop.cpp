@@ -5,8 +5,11 @@
 #include "all_users.pb.h"
 #include "broadcast_messages.pb.h"
 #include "client/client_app.h"
+#include "disconnection_notification.pb.h"
 #include "framing.h"
 #include "protocol_io.h"
+#include "server_broadcast_message.pb.h"
+#include "status_change_notification.pb.h"
 #include "status_mapper.h"
 #include "for_dm.pb.h"
 #include "get_user_info_response.pb.h"
@@ -67,6 +70,31 @@ void receiver_loop(ClientApp& app) {
           std::cout << "- username: " << u.username() << "\n";
           std::cout << "- ip: " << u.ip_address() << "\n";
           std::cout << "- status: " << status_to_pdf_label(u.status()) << "\n";
+        }
+        break;
+      }
+      case MessageType::SERVER_BROADCAST_MESSAGE: {
+        chat::ServerBroadcastMessage sbm;
+        if (sbm.ParseFromArray(fm.payload.data(), static_cast<int>(fm.payload.size()))) {
+          std::cout << "\n[SERVIDOR] " << sbm.message() << " (" << sbm.timestamp() << ")\n";
+        }
+        break;
+      }
+      case MessageType::STATUS_CHANGE_NOTIFICATION: {
+        chat::StatusChangeNotification scn;
+        if (scn.ParseFromArray(fm.payload.data(), static_cast<int>(fm.payload.size()))) {
+          std::string status_str = (scn.new_status() == chat::ACTIVE) ? "ACTIVO" : 
+                                   (scn.new_status() == chat::DO_NOT_DISTURB) ? "OCUPADO" : "INACTIVO";
+          std::cout << "\n[NOTIFICACION] " << scn.username() << " ahora esta " << status_str 
+                    << " (" << scn.timestamp() << ")\n";
+        }
+        break;
+      }
+      case MessageType::DISCONNECTION_NOTIFICATION: {
+        chat::DisconnectionNotification dn;
+        if (dn.ParseFromArray(fm.payload.data(), static_cast<int>(fm.payload.size()))) {
+          std::cout << "\n[NOTIFICACION] " << dn.username() << " se ha desconectado desde " 
+                    << dn.ip_address() << " (" << dn.timestamp() << ")\n";
         }
         break;
       }
