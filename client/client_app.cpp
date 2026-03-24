@@ -71,7 +71,7 @@ void ClientApp::mark_activity() {
 }
 
 void ClientApp::inactivity_monitor() {
-  const int INACTIVITY_THRESHOLD = 10;  // 10 segundos
+  const int INACTIVITY_THRESHOLD = 30;  // 30 segundos
   
   while (!stopping_.load()) {
     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -85,7 +85,7 @@ void ClientApp::inactivity_monitor() {
       auto now = std::chrono::steady_clock::now();
       auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - last_activity_).count();
       
-      // Si pasaron 10 segundos y aún está ACTIVO, marcar para cambiar a INACTIVO
+      // Si pasaron 30 segundos y aún está ACTIVO, marcar para cambiar a INACTIVO
       if (elapsed >= INACTIVITY_THRESHOLD && status_.load() == chat::ACTIVE) {
         should_change_to_inactive = true;
       }
