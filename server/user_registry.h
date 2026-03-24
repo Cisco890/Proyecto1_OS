@@ -30,6 +30,7 @@ class UserRegistry {
   void touch(int fd);
 
   void snapshot_users(std::vector<std::string>& usernames, std::vector<chat::StatusEnum>& statuses) const;
+  void close_all_clients();  // Cerrar todos los sockets de clientes
 
  private:
   mutable std::mutex mu_;

@@ -91,6 +91,7 @@ void ChatServer::run() {
       
       if (line == "/close") {
         std::cerr << "[server] cerrando...\n";
+        registry_->close_all_clients();
         stopping_.store(true);
         break;
       } else if (line.substr(0, 5) == "/msg ") {

@@ -1,5 +1,6 @@
 #include "user_registry.h"
 
+#include <unistd.h>
 #include <vector>
 
 namespace chatapp {
@@ -89,6 +90,15 @@ void UserRegistry::snapshot_users(std::vector<std::string>& usernames,
   for (const auto& [u, sess] : by_user_) {
     usernames.push_back(u);
     statuses.push_back(sess.status);
+  }
+}
+
+void UserRegistry::close_all_clients() {
+  std::lock_guard<std::mutex> lk(mu_);
+  for (const auto& [fd, username] : user_by_fd_) {
+    if (fd >= 0) {
+      ::close(fd);
+    }
   }
 }
 
