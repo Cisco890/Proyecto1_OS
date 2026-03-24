@@ -5,6 +5,7 @@
 #include "all_users.pb.h"
 #include "broadcast_messages.pb.h"
 #include "client/client_app.h"
+#include "connection_notification.pb.h"
 #include "disconnection_notification.pb.h"
 #include "framing.h"
 #include "protocol_io.h"
@@ -87,6 +88,14 @@ void receiver_loop(ClientApp& app) {
                                    (scn.new_status() == chat::DO_NOT_DISTURB) ? "OCUPADO" : "INACTIVO";
           std::cout << "\n[NOTIFICACION] " << scn.username() << " ahora esta " << status_str 
                     << " (" << scn.timestamp() << ")\n";
+        }
+        break;
+      }
+      case MessageType::CONNECTION_NOTIFICATION: {
+        chat::ConnectionNotification cn;
+        if (cn.ParseFromArray(fm.payload.data(), static_cast<int>(fm.payload.size()))) {
+          std::cout << "\n[NOTIFICACION] " << cn.username() << " se ha conectado desde " 
+                    << cn.ip_address() << " (" << cn.timestamp() << ")\n";
         }
         break;
       }

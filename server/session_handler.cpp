@@ -12,6 +12,7 @@
 #include "all_users.pb.h"
 #include "broadcast_messages.pb.h"
 #include "change_status.pb.h"
+#include "connection_notification.pb.h"
 #include "disconnection_notification.pb.h"
 #include "for_dm.pb.h"
 #include "framing.h"
@@ -111,6 +112,21 @@ void broadcast_disconnection(UserRegistry& reg, const chat::DisconnectionNotific
   }
 }
 
+void broadcast_connection(UserRegistry& reg, const chat::ConnectionNotification& n) {
+  std::vector<std::string> users;
+  std::vector<chat::StatusEnum> st;
+  reg.snapshot_users(users, st);
+  for (const auto& u : users) {
+    auto sess = reg.get_by_username(u);
+    if (!sess) continue;
+    try {
+      send_proto(sess->fd, MessageType::CONNECTION_NOTIFICATION, n);
+    } catch (...) {
+      // ignore; session cleanup is handled elsewhere on next IO
+    }
+  }
+}
+
 }  // namespace
 
 void SessionHandler::handle_client(int fd, const std::string& peer_ip, UserRegistry& reg) {
@@ -154,6 +170,13 @@ void SessionHandler::handle_client(int fd, const std::string& peer_ip, UserRegis
                                  (me->status == chat::DO_NOT_DISTURB) ? "OCUPADO" : "INACTIVO";
         std::cerr << "[CONEXION] " << username << " conectado desde " << ip 
                   << " (estado: " << status_str << ")\n";
+        
+        // Notificar a todos que alguien se conectó
+        chat::ConnectionNotification cn;
+        cn.set_username(username);
+        cn.set_ip_address(ip);
+        cn.set_timestamp(get_current_timestamp());
+        broadcast_connection(reg, cn);
       }
     }
 
