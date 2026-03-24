@@ -58,6 +58,25 @@ void ClientApp::connect_and_register() {
     send_proto(fd_, MessageType::REGISTER, r);
   }
   
+  // Esperar respuesta del servidor
+  FramedMessage fm;
+  if (!recv_framed_message(fd_, fm)) {
+    throw std::runtime_error("Conexion cerrada antes de recibir respuesta de registro");
+  }
+  
+  if (fm.type != static_cast<uint8_t>(MessageType::SERVER_RESPONSE)) {
+    throw std::runtime_error("Se esperaba respuesta del servidor");
+  }
+  
+  chat::ServerResponse resp;
+  if (!resp.ParseFromArray(fm.payload.data(), static_cast<int>(fm.payload.size()))) {
+    throw std::runtime_error("No se pudo parsear respuesta del servidor");
+  }
+  
+  if (!resp.is_successful()) {
+    throw std::runtime_error("Registro rechazado: " + resp.message());
+  }
+  
   // Inicializar última actividad
   {
     std::lock_guard<std::mutex> lk(activity_mu_);
