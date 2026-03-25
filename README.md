@@ -67,5 +67,4 @@ Texto sin `/` se envía como broadcast.
 - `docs/DESIGN.md` - Arquitectura y componentes
 - `docs/TESTING.md` - Plan de pruebas
 - `docs/PROTOCOL_NOTES.md` - Detalles de protocolo
-- `docs/explicacion.md` - Explicación detallada de threads y arquitectura
 
