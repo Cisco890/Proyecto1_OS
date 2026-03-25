@@ -2,6 +2,14 @@
 
 Chat TCP cliente/servidor en C++17 con **multithreading** y **Protocol Buffers**, compatible con el protocolo común de la clase: `Simple-Chat-Protocol`.
 
+Características principales:
+- Registro de usuarios con validación de duplicados
+- Notificaciones de conexión/desconexión
+- Detección automática de inactividad (10 segundos)
+- Estados de usuario: Activo, Ocupado, Inactivo
+- Mensajes globales desde servidor
+- Cierre limpio de todas las conexiones
+
 ## Dependencias (Linux)
 
 - `g++` (C++17)
@@ -9,7 +17,7 @@ Chat TCP cliente/servidor en C++17 con **multithreading** y **Protocol Buffers**
 - `protoc`
 - `libprotobuf` (headers + library)
 
-En Debian/Ubuntu (referencia):
+En Debian/Ubuntu:
 
 ```bash
 sudo apt update
@@ -18,48 +26,46 @@ sudo apt install -y build-essential protobuf-compiler libprotobuf-dev
 
 ## Compilar
 
-Desde la raíz del repo:
-
 ```bash
-make clean
-make
+make clean && make
 ```
 
-Esto genera:
-- `server/server`
-- `client/client`
-- protos generados en `generated/` (se pueden borrar con `make clean`)
+Genera: `server/server` y `client/client`
 
 ## Ejecutar
 
-### Servidor
-
+**Servidor:**
 ```bash
 ./server/server <puerto>
 ```
 
-### Cliente
-
+**Cliente:**
 ```bash
 ./client/client <username> <IP_servidor> <puerto_servidor>
 ```
 
-## Comandos del cliente
+## Comandos
 
-- `/help`
-- `/list`
-- `/info <usuario>`
-- `/status <ACTIVO|OCUPADO|INACTIVO>`
-- `/dm <usuario> <mensaje>`
-- `/all <mensaje>`
-- `/quit`
+**Cliente:**
+- `/help` - Ver ayuda
+- `/list` - Listar usuarios conectados
+- `/info <usuario>` - Ver información de usuario
+- `/status <ACTIVO|OCUPADO|INACTIVO>` - Cambiar estado
+- `/dm <usuario> <mensaje>` - Mensaje privado
+- `/all <mensaje>` - Mensaje global
+- `/quit` - Desconectar
 
-Si escribes texto sin `/`, se envía como broadcast.
+**Servidor:**
+- `/msg <mensaje>` - Enviar mensaje global a todos
+- `/close` - Cerrar servidor y desconectar clientes
+- `/help` - Ver comandos disponibles
+
+Texto sin `/` se envía como broadcast.
 
 ## Documentación
 
-Ver:
-- `docs/DESIGN.md`
-- `docs/TESTING.md`
-- `docs/PROTOCOL_NOTES.md`
+- `docs/DESIGN.md` - Arquitectura y componentes
+- `docs/TESTING.md` - Plan de pruebas
+- `docs/PROTOCOL_NOTES.md` - Detalles de protocolo
+- `docs/explicacion.md` - Explicación detallada de threads y arquitectura
 

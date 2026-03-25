@@ -27,32 +27,44 @@ Header:
 
 Implementación: `common/framing.{h,cpp}`.
 
-## Tabla de tipos (type)
+## Tabla de tipos (MessageType)
 
-La implementación usa exactamente esta tabla:
+**Cliente → Servidor:**
+- 1: `REGISTER`
+- 2: `MESSAGE_GENERAL`
+- 3: `MESSAGE_DM`
+- 4: `CHANGE_STATUS`
+- 5: `LIST_USERS`
+- 6: `GET_USER_INFO`
+- 7: `QUIT`
 
-- 1: `register`
-- 2: `message_general`
-- 3: `message_dm`
-- 4: `change_status`
-- 5: `list_users`
-- 6: `get_user_info`
-- 7: `quit`
-- 10: `server_response`
-- 11: `all_users`
-- 12: `for_dm`
-- 13: `broadcast_messages`
-- 14: `get_user_info_response`
+**Servidor → Cliente:**
+- 10: `SERVER_RESPONSE`
+- 11: `ALL_USERS`
+- 12: `FOR_DM`
+- 13: `BROADCAST_MESSAGES`
+- 14: `GET_USER_INFO_RESPONSE`
+- 15: `CONNECTION_NOTIFICATION`
+- 16: `DISCONNECTION_NOTIFICATION`
+- 17: `SERVER_BROADCAST_MESSAGE`
+- 18: `STATUS_CHANGE_NOTIFICATION`
 
-Ver enum: `common/protocol_io.h`.
+Enum: `common/protocol_io.h`
 
 ## Mapping de status (PDF ↔ protocolo)
 
-Internamente se usa `chat::StatusEnum` del protocolo.
+| Documento | Protocolo | Interno |
+|-----------|-----------|---------|
+| ACTIVO | ACTIVE | 1 |
+| OCUPADO | DO_NOT_DISTURB | 2 |
+| INACTIVO | INVISIBLE | 3 |
 
-- ACTIVO ↔ `ACTIVE`
-- OCUPADO ↔ `DO_NOT_DISTURB`
-- INACTIVO ↔ `INVISIBLE`
+Parser/formatter: `common/status_mapper.{h,cpp}`
 
-Parser/formatter: `common/status_mapper.{h,cpp}`.
+## Notificaciones automáticas
+
+- **CONNECTION_NOTIFICATION**: Enviada cuando un usuario se conecta
+- **DISCONNECTION_NOTIFICATION**: Enviada cuando un usuario se desconecta
+- **STATUS_CHANGE_NOTIFICATION**: Enviada cuando cambia estado (manual o automático por inactividad)
+- **SERVER_BROADCAST_MESSAGE**: Mensajes globales del servidor (comando `/msg`)
 
